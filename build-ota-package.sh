@@ -33,12 +33,15 @@ fi
 # === Create install.sh ===
 cat << 'EOF' > "$OTA_DIR/install.sh"
 #!/bin/bash
+
 SNAP_COMMON=${SNAP_COMMON:-/var/snap/iotconnect/common}
-MODEL_SRC=$(pwd)/models
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+MODEL_SRC="$SCRIPT_DIR/models"
 MODEL_DST="$SNAP_COMMON/models"
 
 echo "[INSTALL] SNAP_COMMON is $SNAP_COMMON"
 echo "[INSTALL] Moving models to $MODEL_DST"
+echo "[INSTALL] Source model path is $MODEL_SRC"
 
 mkdir -p "$MODEL_DST"
 
