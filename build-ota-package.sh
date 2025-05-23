@@ -1,33 +1,33 @@
 #!/bin/bash
 
 # === Configuration ===
-MODEL_NAME=${1:-"my-model.onnx"}
-LABELS_NAME=${2:-"labels.txt"}
-
 SRC_MODEL_DIR="./source-models"
-MODEL_PATH="$SRC_MODEL_DIR/$MODEL_NAME"
-LABELS_PATH="$SRC_MODEL_DIR/$LABELS_NAME"
-
 OTA_DIR="ota-package"
 ARCHIVE_NAME="model-ota.tar.gz"
+
+# === Locate files ===
+MODEL_PATH=$(find "$SRC_MODEL_DIR" -maxdepth 1 -name "*.onnx" | head -n 1)
+LABELS_PATH=$(find "$SRC_MODEL_DIR" -maxdepth 1 -name "labels.txt" | head -n 1)
+
+if [[ -z "$MODEL_PATH" ]]; then
+  echo "[ERROR] No .onnx model file found in $SRC_MODEL_DIR"
+  exit 1
+fi
+
+MODEL_NAME=$(basename "$MODEL_PATH")
 
 # === Create workspace ===
 rm -rf "$OTA_DIR"
 mkdir -p "$OTA_DIR/models"
 
 # === Copy files ===
-if [[ ! -f "$MODEL_PATH" ]]; then
-  echo "[ERROR] Model file not found: $MODEL_PATH"
-  exit 1
-fi
-
 cp "$MODEL_PATH" "$OTA_DIR/models/"
 echo "$MODEL_NAME" > "$OTA_DIR/models/current-model.txt"
 
-if [[ -f "$LABELS_PATH" ]]; then
+if [[ -n "$LABELS_PATH" && -f "$LABELS_PATH" ]]; then
   cp "$LABELS_PATH" "$OTA_DIR/models/"
 else
-  echo "[INFO] No labels.txt provided. Proceeding without it."
+  echo "[INFO] No labels.txt found. Proceeding without it."
 fi
 
 # === Create install.sh ===
